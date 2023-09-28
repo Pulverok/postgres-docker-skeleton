@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  study-postgresql:
+    image: postgres:15.4
+    container_name: study-postgresql
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      TZ: UTC
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+        - ./docker/etc/postgres/data:/var/lib/postgresql/data
+    networks:
+      study:
+        ipv4_address: ${SUBNET}.2
+
+networks:
+  study:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${SUBNET}.0/24
