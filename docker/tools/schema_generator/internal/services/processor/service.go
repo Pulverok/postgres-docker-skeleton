@@ -3,9 +3,10 @@ package processor
 import (
 	"fmt"
 	"os"
-	"schema_generator/internal/config"
-	"schema_generator/internal/entity"
-	"schema_generator/internal/enum"
+
+	"github.com/Pulverok/postgres-docker-skeleton/schema_generator/internal/config"
+	"github.com/Pulverok/postgres-docker-skeleton/schema_generator/internal/entity"
+	"github.com/Pulverok/postgres-docker-skeleton/schema_generator/internal/enum"
 
 	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v3"

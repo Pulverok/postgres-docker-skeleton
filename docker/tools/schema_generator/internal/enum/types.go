@@ -1,6 +1,6 @@
 package enum
 
-import "schema_generator/internal/entity"
+import "github.com/Pulverok/postgres-docker-skeleton/schema_generator/internal/entity"
 
 const (
 	Schema            entity.Type = "schema"

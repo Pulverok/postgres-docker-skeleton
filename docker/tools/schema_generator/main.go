@@ -2,8 +2,9 @@ package main
 
 import (
 	"log"
-	"schema_generator/internal/config"
-	"schema_generator/internal/services/processor"
+
+	"github.com/Pulverok/postgres-docker-skeleton/schema_generator/internal/config"
+	"github.com/Pulverok/postgres-docker-skeleton/schema_generator/internal/services/processor"
 )
 
 func main() {

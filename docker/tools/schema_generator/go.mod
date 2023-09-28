@@ -1,4 +1,4 @@
-module schema_generator
+module github.com/Pulverok/postgres-docker-skeleton/schema_generator
 
 go 1.20
 
