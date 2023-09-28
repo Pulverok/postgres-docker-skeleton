@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-
 	"schema_generator/internal/config"
 	"schema_generator/internal/services/processor"
 )
@@ -20,6 +19,4 @@ func main() {
 		log.Fatalf("failed to process data: %v", err)
 		return
 	}
-
-	return
 }

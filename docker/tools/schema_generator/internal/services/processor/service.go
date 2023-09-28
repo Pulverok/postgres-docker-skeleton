@@ -3,14 +3,12 @@ package processor
 import (
 	"fmt"
 	"os"
-
-	"golang.org/x/exp/slices"
-
-	"gopkg.in/yaml.v3"
-
 	"schema_generator/internal/config"
 	"schema_generator/internal/entity"
 	"schema_generator/internal/enum"
+
+	"golang.org/x/exp/slices"
+	"gopkg.in/yaml.v3"
 )
 
 // Processor handles the processing of entities and generates migration SQL files.
@@ -61,7 +59,7 @@ func (p *Processor) getMigrateConfig() (*entity.MigrateConfig, error) {
 	cfg := entity.MigrateConfig{}
 	file, err := os.ReadFile(fmt.Sprintf("%s/%s", p.cfg.DataPath, "config.yml"))
 	if err != nil {
-		return nil, fmt.Errorf("can't read config file: %v", err)
+		return nil, fmt.Errorf("can't read config file: %w", err)
 	}
 
 	err = yaml.Unmarshal(file, &cfg)
@@ -91,11 +89,7 @@ func (p *Processor) getEntities() (entity.Entities, error) {
 
 	for _, v := range migrateEntities.Migrations {
 		for k, l := range v {
-			item, err := getEntity(l, k, p.cfg.DataPath)
-			if err != nil {
-				return nil, err
-			}
-
+			item := getEntity(l, k, p.cfg.DataPath)
 			entities = append(entities, *item)
 		}
 	}
@@ -104,7 +98,7 @@ func (p *Processor) getEntities() (entity.Entities, error) {
 }
 
 // getEntity retrieves an entity's data including its schema and SQL files.
-func getEntity(e []string, schema string, dataPath string) (*entity.Entity, error) {
+func getEntity(e []string, schema, dataPath string) *entity.Entity {
 	var item entity.Entity
 	item.Name = schema
 
@@ -122,14 +116,14 @@ func getEntity(e []string, schema string, dataPath string) (*entity.Entity, erro
 		}
 	}
 
-	return &item, nil
+	return &item
 }
 
 func getSchemaFiles(cfg entity.MigrateConfig, dataPath string) ([]entity.DBItem, error) {
 	var schemasPath []string
 	var schemas []entity.DBItem
 	for _, e := range cfg.Migrations {
-		for k, _ := range e {
+		for k := range e {
 			if k != "public" {
 				schemaPath := fmt.Sprintf("%s/%s/initialize-schema.sql", dataPath, k)
 				content, err := os.ReadFile(schemaPath)
@@ -137,17 +131,15 @@ func getSchemaFiles(cfg entity.MigrateConfig, dataPath string) ([]entity.DBItem,
 					return nil, fmt.Errorf("schema file %s not found", k)
 				}
 
-				if slices.Contains(schemasPath, schemaPath) {
-					continue
+				if !slices.Contains(schemasPath, schemaPath) {
+					schemas = append(schemas, entity.DBItem{
+						Type: string(enum.Schema),
+						Path: schemaPath,
+						Data: content,
+					})
+
+					schemasPath = append(schemasPath, schemaPath)
 				}
-
-				schemas = append(schemas, entity.DBItem{
-					Type: string(enum.Schema),
-					Path: schemaPath,
-					Data: content,
-				})
-
-				schemasPath = append(schemasPath, schemaPath)
 			}
 		}
 	}
