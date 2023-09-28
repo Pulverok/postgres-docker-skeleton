@@ -56,6 +56,22 @@ func (p *Processor) Process() error {
 	return nil
 }
 
+// getMigrateConfig retrieves the migration configuration from the config file.
+func (p *Processor) getMigrateConfig() (*entity.MigrateConfig, error) {
+	cfg := entity.MigrateConfig{}
+	file, err := os.ReadFile(fmt.Sprintf("%s/%s", p.cfg.DataPath, "config.yml"))
+	if err != nil {
+		return nil, fmt.Errorf("can't read config file: %v", err)
+	}
+
+	err = yaml.Unmarshal(file, &cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
+}
+
 // getEntities retrieves entities from the MigrateConfig and initializes their data.
 func (p *Processor) getEntities() (entity.Entities, error) {
 	var entities entity.Entities
@@ -75,7 +91,7 @@ func (p *Processor) getEntities() (entity.Entities, error) {
 
 	for _, v := range migrateEntities.Migrations {
 		for k, l := range v {
-			item, err := p.getEntity(l, k, p.cfg.DataPath)
+			item, err := getEntity(l, k, p.cfg.DataPath)
 			if err != nil {
 				return nil, err
 			}
@@ -88,7 +104,7 @@ func (p *Processor) getEntities() (entity.Entities, error) {
 }
 
 // getEntity retrieves an entity's data including its schema and SQL files.
-func (p *Processor) getEntity(e []string, schema string, dataPath string) (*entity.Entity, error) {
+func getEntity(e []string, schema string, dataPath string) (*entity.Entity, error) {
 	var item entity.Entity
 	item.Name = schema
 
@@ -107,22 +123,6 @@ func (p *Processor) getEntity(e []string, schema string, dataPath string) (*enti
 	}
 
 	return &item, nil
-}
-
-// getMigrateConfig retrieves the migration configuration from the config file.
-func (p *Processor) getMigrateConfig() (*entity.MigrateConfig, error) {
-	cfg := entity.MigrateConfig{}
-	file, err := os.ReadFile(fmt.Sprintf("%s/%s", p.cfg.DataPath, "config.yml"))
-	if err != nil {
-		return nil, fmt.Errorf("can't read config file: %v", err)
-	}
-
-	err = yaml.Unmarshal(file, &cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	return &cfg, nil
 }
 
 func getSchemaFiles(cfg entity.MigrateConfig, dataPath string) ([]entity.DBItem, error) {
